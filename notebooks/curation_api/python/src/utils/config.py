@@ -9,16 +9,20 @@ def set_api_urls(env: str) -> None:
     :param env: the deployment environment
     :return: None
     """
-    if env == "prod":  # For all official use of the cellxgene product
-        domain_name = "cellxgene.cziscience.com"
-    elif env == "dev" or env == "staging":  # For testing purposes only
-        domain_name = f"cellxgene.{env}.single-cell.czi.technology"
+    if env in ("dev", "staging", "prod"):  # For all official use of the cellxgene product
+        if env == "prod":
+            domain_name = "cellxgene.cziscience.com"
+        elif env == "dev" or env == "staging":  # For testing purposes only
+            domain_name = f"cellxgene.{env}.single-cell.czi.technology"
+        os.environ["site_url"] = f"https://{domain_name}"
+        os.environ["api_url_base"] = f"https://api.{domain_name}"
+    elif env:
+        os.environ["site_url"] = f"{env}-frontend.rdev.single-cell.czi.technology"
+        os.environ["api_url_base"] = f"https://{env}-backend.rdev.single-cell.czi.technology"
     else:
         raise Exception("Must provide env arg: 'dev', 'staging', or 'prod'.")
 
-    os.environ["site_url"] = f"https://{domain_name}"
     print(f"Set 'site_url' env var to {os.getenv('site_url')}")
-    os.environ["api_url_base"] = f"https://api.{domain_name}"
     print(f"Set 'api_url_base' env var to {os.getenv('api_url_base')}")
 
 
