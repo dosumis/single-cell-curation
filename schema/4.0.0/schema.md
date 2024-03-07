@@ -379,7 +379,7 @@ Curators MUST annotate the following columns in the `obs` dataframe:
     </tr>
     <tr>
       <th>Value</th>
-        <td>categorical with <code>str</code> categories. This MUST be a CL term.<br><br>If no appropriate high-level term can be found or the cell type is unknown, then it is STRONGLY RECOMMENDED to use <a href="https://www.ebi.ac.uk/ols4/ontologies/cl/terms?obo_id=CL:0000003"><code>"CL:0000003"</code></a> for <i>native cell</i>. The following terms MUST NOT be used:
+        <td>categorical with <code>str</code> categories. This MUST be a subclass of <a href="https://www.ebi.ac.uk/ols4/ontologies/cl/terms?obo_id=CL:0000000"><code>"CL:0000000"</code></a> <i></i> cell</i> in the Cell Ontology or some ontology that extends it (e.g. The Drosophila Anatomy Ontology <a href="https://www.ebi.ac.uk/ols4/ontologies/fbbt">fbbt</a>).  If no appropriate high-level term can be found or the cell type is unknown, then it is STRONGLY RECOMMENDED to use <a href="https://www.ebi.ac.uk/ols4/ontologies/cl/terms?obo_id=CL:0000003"><code>"CL:0000003"</code></a> for <i>native cell</i>. The following terms MUST NOT be used:
         <ul><li>
           <a href="https://www.ebi.ac.uk/ols4/ontologies/cl/terms?obo_id=CL:0000255"><code>"CL:0000255"</code></a> for <i>eukaryotic cell</i>
         </li>
@@ -406,7 +406,7 @@ Curators MUST annotate the following columns in the `obs` dataframe:
     </tr>
     <tr>
       <th>Value</th>
-        <td>categorical with <code>str</code> categories. If unavailable, this MUST be <code>"unknown".</code> <br><br>If <code>organism_ontolology_term_id</code> is <a href="https://www.ebi.ac.uk/ols4/ontologies/ncbitaxon/classes?obo_id=NCBITaxon%3A9606"><code>"NCBITaxon:9606"</code></a> for <i>Homo sapiens</i>, this MUST be the most accurate HsapDv term with the following STRONGLY RECOMMENDED:
+        <td>categorical with <code>str</code> categories. If unavailable, this MUST be <code>"unknown"</code>. This must be a subclass of <a href="https://www.ebi.ac.uk/ols4/ontologies/uberon/classes?obo_id=UBERON%3A0000105">UBERON:0000105</a> "life cycle stage" in Uberon or some ontology that extends it, for eaxmple <a href="https://www.ebi.ac.uk/ols4/ontologies/hsapdv/>hsapdv</a> Species appropriate stage terms SHOULD be used.  For example, <br><br>if <code>organism_ontolology_term_id</code> is <a href="https://www.ebi.ac.uk/ols4/ontologies/ncbitaxon/classes?obo_id=NCBITaxon%3A9606"><code>"NCBITaxon:9606"</code></a> for <i>Homo sapiens</i>, this MUST be the most accurate HsapDv term with the following STRONGLY RECOMMENDED:
           <br><br>
           <table>
           <thead>
@@ -937,7 +937,7 @@ Curators MUST annotate the following columns in the `obs` dataframe:
     </tr>
    <tr>
       <th>Value</th>
-        <td>categorical with <code>str</code> categories. If <code>tissue_type</code> is <code>"tissue"</code> or <code>"organoid"</code>, this MUST be the most accurate child of <a href="https://www.ebi.ac.uk/ols4/ontologies/uberon/classes?obo_id=UBERON%3A0001062"><code>UBERON:0001062</code></a> for <i>anatomical entity</i>.<br><br> If <code>tissue_type</code> is <code>"cell culture"</code> this MUST follow the requirements for <code>cell_type_ontology_term_id<code>.</td>
+        <td>categorical with <code>str</code> categories. If <code>tissue_type</code> is <code>"tissue"</code> or <code>"organoid"</code>, this MUST be the most accurate child of <a href="https://www.ebi.ac.uk/ols4/ontologies/uberon/classes?obo_id=UBERON%3A0001062"><code>UBERON:0001062</code></a> for <i>anatomical entity</i> in Uberon or an anatomy ontology that extends it, for eaxmple <a href="https://www.ebi.ac.uk/ols4/ontologies/fbbt">fbbt</a>.<br><br> If <code>tissue_type</code> is <code>"cell culture"</code> this MUST follow the requirements for <code>cell_type_ontology_term_id<code>.</td>
      </tr>
 </tbody></table>
 <br>
