@@ -68,6 +68,9 @@ ONTOLOGY_TERM_MAPS = {
 
 DEPRECATED_FEATURE_IDS = [
 ]
+
+# Dictionary for CURATOR-DEFINED remapping of deprecated feature IDs, if any, to new feature IDs.
+GENCODE_MAPPER = {}
 # fmt: on
 
 
@@ -99,9 +102,12 @@ def migrate(input_file, output_file, collection_id, dataset_id):
     #   <custom transformation logic beyond scope of replace_ontology_term>
     # ...
 
+    if GENCODE_MAPPER:
+        dataset = utils.remap_deprecated_features(adata=dataset, remapped_features=GENCODE_MAPPER)
+
     # AUTOMATED, DO NOT CHANGE -- IF GENCODE UPDATED, DEPRECATED FEATURE FILTERING ALGORITHM WILL GO HERE.
     if DEPRECATED_FEATURE_IDS:
-        dataset = utils.remove_deprecated_features(dataset, DEPRECATED_FEATURE_IDS)
+        dataset = utils.remove_deprecated_features(adata=dataset, deprecated=DEPRECATED_FEATURE_IDS)
 
     dataset.write(output_file, compression="gzip")"""
 
@@ -167,6 +173,9 @@ ONTOLOGY_TERM_MAPS = {
 
 DEPRECATED_FEATURE_IDS = [
 ]
+
+# Dictionary for CURATOR-DEFINED remapping of deprecated feature IDs, if any, to new feature IDs.
+GENCODE_MAPPER = {}
 # fmt: on
 
 
@@ -198,9 +207,12 @@ def migrate(input_file, output_file, collection_id, dataset_id):
     #   <custom transformation logic beyond scope of replace_ontology_term>
     # ...
 
+    if GENCODE_MAPPER:
+        dataset = utils.remap_deprecated_features(adata=dataset, remapped_features=GENCODE_MAPPER)
+
     # AUTOMATED, DO NOT CHANGE -- IF GENCODE UPDATED, DEPRECATED FEATURE FILTERING ALGORITHM WILL GO HERE.
     if DEPRECATED_FEATURE_IDS:
-        dataset = utils.remove_deprecated_features(dataset, DEPRECATED_FEATURE_IDS)
+        dataset = utils.remove_deprecated_features(adata=dataset, deprecated=DEPRECATED_FEATURE_IDS)
 
     dataset.write(output_file, compression="gzip")"""
 
@@ -272,6 +284,9 @@ DEPRECATED_FEATURE_IDS = [
     "ENSG00000223972",
     "ENSG00000227232",
 ]
+
+# Dictionary for CURATOR-DEFINED remapping of deprecated feature IDs, if any, to new feature IDs.
+GENCODE_MAPPER = {}
 # fmt: on
 
 
@@ -303,9 +318,12 @@ def migrate(input_file, output_file, collection_id, dataset_id):
     #   <custom transformation logic beyond scope of replace_ontology_term>
     # ...
 
+    if GENCODE_MAPPER:
+        dataset = utils.remap_deprecated_features(adata=dataset, remapped_features=GENCODE_MAPPER)
+
     # AUTOMATED, DO NOT CHANGE -- IF GENCODE UPDATED, DEPRECATED FEATURE FILTERING ALGORITHM WILL GO HERE.
     if DEPRECATED_FEATURE_IDS:
-        dataset = utils.remove_deprecated_features(dataset, DEPRECATED_FEATURE_IDS)
+        dataset = utils.remove_deprecated_features(adata=dataset, deprecated=DEPRECATED_FEATURE_IDS)
 
     dataset.write(output_file, compression="gzip")"""
     mock.patch("scripts.migration_assistant.generate_script.get_current_version", return_value=expected_output)
@@ -329,7 +347,7 @@ def test_get_deprecated_feature_ids(tmp_path, organisms):  # type: ignore
             for feature_id in organism_feature_ids:
                 fp.write(feature_id + "\n")
             expected_deprecated_feature_ids.extend(organism_feature_ids)
-    with mock.patch("scripts.migration_assistant.generate_script.env.ONTOLOGY_DIR", tmp_path):
+    with mock.patch("scripts.migration_assistant.generate_script.env.GENCODE_DIR", tmp_path):
         actual_deprecated_features = get_deprecated_feature_ids()
     expected_deprecated_feature_ids.sort()
     actual_deprecated_features.sort()
@@ -337,7 +355,7 @@ def test_get_deprecated_feature_ids(tmp_path, organisms):  # type: ignore
 
 
 def test_get_deprecated_feature_ids__no_files(tmp_path):  # type: ignore
-    with mock.patch("scripts.migration_assistant.generate_script.env.ONTOLOGY_DIR", tmp_path):
+    with mock.patch("scripts.migration_assistant.generate_script.env.GENCODE_DIR", tmp_path):
         actual_deprecated_features = get_deprecated_feature_ids()
     assert actual_deprecated_features == []
 
@@ -346,6 +364,6 @@ def test_get_deprecated_feature_ids__empty_feature_files(tmp_path, organisms):  
     for organism in organisms:
         with open(f"{tmp_path}/{organism}_diff.txt", "w") as fp:
             fp.write("")
-    with mock.patch("scripts.migration_assistant.generate_script.env.ONTOLOGY_DIR", tmp_path):
+    with mock.patch("scripts.migration_assistant.generate_script.env.GENCODE_DIR", tmp_path):
         actual_deprecated_features = get_deprecated_feature_ids()
     assert actual_deprecated_features == []

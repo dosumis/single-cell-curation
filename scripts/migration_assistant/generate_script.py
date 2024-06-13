@@ -13,7 +13,7 @@ target_file = os.path.join(file_path, "../../cellxgene_schema_cli/cellxgene_sche
 def get_template() -> Template:
     with open(os.path.join(file_path, "migration_template.jinja"), "r") as fp:
         input_file = fp.read()
-    template = Template(input_file, trim_blocks=True, lstrip_blocks=True)
+    template = Template(input_file, keep_trailing_newline=True, trim_blocks=True, lstrip_blocks=True)
     return template
 
 
@@ -36,10 +36,10 @@ def get_deprecated_feature_ids() -> List[str]:
     # return a list of deprecated feature ids.
     diff_list = []
     suffix = "_diff.txt"
-    files = os.listdir(env.ONTOLOGY_DIR)
+    files = os.listdir(env.GENCODE_DIR)
     for file in files:
         if file.endswith(suffix):
-            with open(f"{env.ONTOLOGY_DIR}/{file}") as fp:
+            with open(f"{env.GENCODE_DIR}/{file}") as fp:
                 lines = fp.read().splitlines()
                 diff_list.extend(lines)
     return diff_list

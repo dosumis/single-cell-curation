@@ -1,74 +1,32 @@
 # Updating reference files
 
 ## Quick start 
-To update the gene and ontology references the following files need to be modified with the updated references:
+To update the gene references, update `cellxgene_schema_cli/cellxgene_schema/gencode_files/gene_info.yml` with new references.
 
-- Genes `cellxgene_schema_cli/Makfile` (see rules for each organism)
-- Ontologies `cellxgene_schema_cli/cellxgene_schema/ontology_files/owl_info` 
+To update ontologies, update the `cellxgene-ontology-guide` version in `cellxgene_schema_cli/requirements.txt`.
 
-Then the following will command download and process the reference files, and then update the respective package files under `cellxgene_schema_cli/cellxgene_schema/ontology_files/`
-Following an update and release, copy the new ontology files to the single-cell-data-portal repo, replacing the files currently stored in `backend/ontology_files`
+- Then the following command will download and process the gene references and update the respective package files under `cellxgene_schema_cli/cellxgene_schema/gencode_files/`
+
 ```bash
-make update-references
+make update-gene-references
 ```
 
-The reference files are used internally by the classes `cellxgene-schema.ontology.GeneChecker` and 
-`cellxgene-schema.ontology.OntologyChecker`, those classes get the references file paths from `cellxgene-schema.env`
-
-For more detailed information please read the rest of this readme.
+The gene reference files are used internally by the class `cellxgene-schema.ontology.GeneChecker`
 
 ## Updating ontologies
 
-Ontology information for cellxgene-schema is  stored in `cellxgene_schema_cli/cellxgene_schema/ontology_files/all_ontology.json.gz` 
-
-To update these ontologies, a developer has to:
-
-### 1. Modify owl references
-
-The yaml file `cellxgene_schema_cli/cellxgene_schema/ontology_files/owl_info.yml` contains the current ontologies and versions used.
-
-Foe example, for CL:
-
-```yaml
-CL:
-  latest: 2021-06-21
-  urls:
-    2021-06-21: https://github.com/obophenotype/cell-ontology/raw/v2021-06-21/cl.owl
-```
-
-`latest` references the version currently used by cellxgene-schema. When updating an ontology, the new version has to 
-be added to `urls` under the current date and `latest` has to be to point at the correct date. It would like look this:
-
-```yaml
-CL:
-  latest: new_date
-  urls:
-    2021-06-21: https://github.com/obophenotype/cell-ontology/raw/v2021-06-21/cl.owl
-    new_date: https://foo.owl
-```
-
-**Note:** The processing scripts currently support `.owl` and `.owl.gz` files
-
-### 2. Download and parse ontologies
-
-From this directory (`cellxgene_schema_cli/scripts`) the following script has to be called:
-
-```bash
-make download-ontologies
-```
-
-This will:
-
-1. Download ontology owl files to `cellxgene_schema_cli/cellxgene_schema/ontology_files/`
-2. Parse each owl, extract important information and store all of it into **one** file `cellxgene_schema_cli/cellxgene_schema/ontology_files/all_ontology.json`
+Ontology information for cellxgene-schema is derived from `cellxgene-ontology-guide`. To update the ontologies in 
+conjunction with a schema release, update [ontology_info.json in cellxgene-ontology-guide](https://github.com/chanzuckerberg/cellxgene-ontology-guide/blob/main/ontology-assets/ontology_info.json),
+and then generate a new release with the subsequently generated ontology files. Bump the version of `cellxgene-ontology-guide` in 
+`cellxgene_schema_cli/requirements.txt` to this latest release.
 
 ## Updating gene references
 
-Gene references are stored under  `cellxgene_schema_cli/cellxgene_schema/ontology_files/`
+Gene references are stored under  `cellxgene_schema_cli/cellxgene_schema/gencode_files/`
 
 The following gene references are currently stored (to see specific versions refer to schema definition):
 
-1. Humnan `genes_homo_sapines.csv.gz`
+1. Human `genes_homo_sapines.csv.gz`
 2. Mouse `genes_mus_musculus_sapines.csv.gz`
 3. sars‑CoV‑2 `genes_sars_cov_2.csv.gz`
 4. ERCC Spike-Ins `genes_ercc.csv.gz`
@@ -76,30 +34,18 @@ The following gene references are currently stored (to see specific versions ref
 To update these gene references, a developer has to do run the following:
 
 ```bash
-make gene_processing
+make update-gene-references
 ```
 
 This will:
 
-1. Download the reference gene files.
-2. For 10X data, uncompress it, get the GTF files and remove the rest.
-3. At the end the following files will be in this folder:
+1. Download the gene reference files.
+2. For 10X data: decompress it, get the GTF files and remove the rest.
+3. At the end the following files will be in the folder:
 
     - `mus_musculus.gtf.gz`
     - `homo_sapiens.gtf.gz`
     - `sars_cov_2.gtf.gz`
     - `ercc.txt`
 
-The reference GTF files for mouse and human are obtained from the 10X reference data. The GTF file for sars‑CoV‑2 is obtained from ENSEMBL. The ERCC IDs are obtained from ThermoFisher.
-To download all these files the following has to be called:
-
-If reference gene versions need to be updated then `Makefile` has to be changed accordingly under the rules corresponding to each organism.
-
-## Cleanup
-
-If instead of the rule `update-references` individual make rules were executed, then make sure to remove all unused downloads using:
-```bash
-make clean
-```
-Please ensure you have replaced the ontology files in the single-cell-data-portal repo with  the updated ontology files.
-The files should be stored under `backend/ontology_files`
+The GTF files for mouse and human are obtained from the 10X reference data. The GTF file for sars‑CoV‑2 is obtained from ENSEMBL. The ERCC IDs are obtained from ThermoFisher.

@@ -3,9 +3,9 @@ import traceback
 from typing import Dict, List, Optional
 
 import pandas as pd
-from cellxgene_schema import ontology
+from cellxgene_schema import gencode
 from cellxgene_schema.env import SCHEMA_REFERENCE_BASE_URL, SCHEMA_REFERENCE_FILE_NAME
-from cellxgene_schema.validate import ONTOLOGY_CHECKER, Validator
+from cellxgene_schema.validate import ONTOLOGY_PARSER, Validator
 
 from .utils import enforce_canonical_format, get_hash_digest_column, getattr_anndata
 
@@ -114,14 +114,14 @@ class AnnDataLabelAppender:
          error if term_id is not valid).
 
         :param term_id: str single ontology term ID
-        :param allowed_ontologies: List[str] list of onotlogies to check for term_id label in
+        :param allowed_ontologies: List[str] list of ontologies to check for term_id label in
         :return: str term label
         """
         for ontology_name in allowed_ontologies:
             if ontology_name == "NA":
                 continue
-            elif ONTOLOGY_CHECKER.is_valid_term_id(ontology_name, term_id):
-                return ONTOLOGY_CHECKER.get_term_label(ontology_name, term_id)
+            elif ONTOLOGY_PARSER.is_valid_term_id(term_id, ontology_name):
+                return ONTOLOGY_PARSER.get_term_label(term_id)
         raise ValueError(f"Add labels error: Unable to get label for '{term_id}'")
 
     def _get_mapping_dict_curie(self, ids: List[str], curie_constraints: dict) -> Dict[str, str]:
@@ -138,7 +138,7 @@ class AnnDataLabelAppender:
 
         mapping_dict = {}
         allowed_ontologies = curie_constraints["ontologies"]
-        multi_term_def = curie_constraints.get("multi_term", None)
+        multi_term_def = curie_constraints.get("multi_term")
         delimiter = None if multi_term_def is None else multi_term_def["delimiter"]
 
         # Map term_ids to their human-readable ontology labels
@@ -169,12 +169,12 @@ class AnnDataLabelAppender:
         mapping_dict = {}
 
         for i in ids:
-            organism = ontology.get_organism_from_feature_id(i)
+            organism = gencode.get_organism_from_feature_id(i)
             mapping_dict[i] = self.validator.gene_checkers[organism].get_symbol(i)
 
         return mapping_dict
 
-    def _get_mapping_dict_feature_reference(self, ids: List[str]) -> Dict[str, Optional[ontology.SupportedOrganisms]]:
+    def _get_mapping_dict_feature_reference(self, ids: List[str]) -> Dict[str, Optional[gencode.SupportedOrganisms]]:
         """
         Creates a mapping dictionary of gene/feature IDs and NCBITaxon curies
 
@@ -187,7 +187,7 @@ class AnnDataLabelAppender:
         mapping_dict = {}
 
         for i in ids:
-            organism = ontology.get_organism_from_feature_id(i)
+            organism = gencode.get_organism_from_feature_id(i)
             mapping_dict[i] = organism.value
 
         return mapping_dict
@@ -227,7 +227,7 @@ class AnnDataLabelAppender:
 
         for i in ids:
             if i.startswith("ENS"):
-                organism = ontology.get_organism_from_feature_id(i)
+                organism = gencode.get_organism_from_feature_id(i)
                 mapping_dict[i] = self.validator.gene_checkers[organism].get_length(i)
             else:
                 mapping_dict[i] = 0
@@ -313,15 +313,7 @@ class AnnDataLabelAppender:
         for label_def in column_definition["add_labels"]:
             new_column = self._get_labels(component, column, column_definition, label_def["type"])
             new_column_name = label_def["to_column"]
-
-            # The syntax below is a programmatic way to access obs and var in adata:
-            # adata.__dict__["_obs"] is adata.obs
-            # "raw.var" requires to levels of programmatic access
-            if "." in component:
-                [first_elem, second_elem] = component.split(".")
-                self.adata.__dict__["_" + first_elem].__dict__["_" + second_elem][new_column_name] = new_column
-            else:
-                self.adata.__dict__["_" + component][new_column_name] = new_column
+            getattr_anndata(self.adata, component)[new_column_name] = new_column
 
     def _add_labels(self):
         """
